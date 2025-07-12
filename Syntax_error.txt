@@ -1,0 +1,24 @@
+@version v0.6.18   // ❌ Missing quotes around version string
+
+import string
+import time;
+import math;
+
+void test_math {
+    println("Add:", add(2, "3"));  // ❌ Type error: int + string
+    println("Sub:", sub(10));      // ❌ Arity error: missing second argument
+    println("Abs:", abs());        // ❌ Arity error: no argument provided
+    println("Sqrt:", sqrt("25"));  // ❌ Type error: string passed to sqrt
+    println("Sin(pi/2):", sin(div(pi, 2)));  // ✅ This line is OK
+}
+
+int main() {
+    test_math();  // ✅ OK
+
+    println("Welcome to OCL - v0.6.18")
+    println("Hello", "World!")  // ❌ Syntax error: missing semicolons and too many arguments?
+    println("Elapsed:", time);  // ❌ Type error: `time` is a function, should be time()
+    println("x =", add(5, 5.0)); // ❌ Type mismatch: int + float (if not allowed implicitly)
+    
+    return "0";  // ❌ Return type mismatch: expected int, got string
+}
