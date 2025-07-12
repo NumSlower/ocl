@@ -1,0 +1,23 @@
+@version "v0.6.18"
+
+import string;
+import time;
+import math;
+
+void test_math() {
+    println("Add:", add(2, 3));
+    println("Sub:", sub(10, 4));
+    println("Abs:", abs(-7));
+    println("Sqrt:", sqrt(25));
+    println("Sin(pi/2):", sin(div(pi, 2)));
+}
+
+int main() {
+    test_math();
+
+    println("Welcome to OCL - v0.6.18");
+    println("Hello, World!");
+    println("Elapsed:", time());
+    println("x =", add(5, 5));  // Simulating let x = 5 + 5
+    return 0;
+}
