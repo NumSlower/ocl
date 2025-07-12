@@ -37,25 +37,76 @@ class Position:
         return pos
 
 
+# Enhanced token regex with type system support
 TOKEN_REGEX = [
     ("VERSION", r"@version"),
     ("IMPORT", r"import"),
     ("RETURN", r"return"),
-    ("INT", r"int"),
-    ("VOID", r"void"),
+    ("FN", r"fn"),          # New function keyword
     ("LET", r"let"),
+    ("CONST", r"const"),    # New constant keyword
+    ("CAST", r"cast"),      # New cast function
+    ("TO_STRING", r"to_string"),
+    ("TO_INT", r"to_int"),
+    ("TO_FLOAT", r"to_float"),
+    ("TO_BOOL", r"to_bool"),
+    
+    # Type keywords
+    ("INT_TYPE", r"int"),
+    ("FLOAT_TYPE", r"float"),
+    ("BOOL_TYPE", r"bool"),
+    ("STRING_TYPE", r"string"),
+    ("VOID_TYPE", r"void"),
+    
+    # Boolean literals
+    ("BOOL_LITERAL", r"true|false"),
+    
+    # Operators
     ("ASSIGN", r"="),
     ("PLUS", r"\+"),
-    ("MINUS", r"-"),  # Added minus operator
+    ("MINUS", r"-"),
+    ("MULTIPLY", r"\*"),
+    ("DIVIDE", r"/"),
+    ("MODULO", r"%"),
+    ("POWER", r"\*\*"),
+    
+    # Comparison operators
+    ("EQ", r"=="),
+    ("NE", r"!="),
+    ("LT", r"<"),
+    ("LE", r"<="),
+    ("GT", r">"),
+    ("GE", r">="),
+    
+    # Logical operators
+    ("AND", r"&&"),
+    ("OR", r"\|\|"),
+    ("NOT", r"!"),
+    
+    # Literals
     ("STRING", r'"[^"]*"'),
-    ("NUMBER", r'-?\d+'),  # Support negative numbers
+    ("FLOAT", r'-?\d+\.\d+'),     # Float numbers (with decimal point)
+    ("INT", r'-?\d+'),            # Integer numbers
+    
+    # Identifiers and punctuation
     ("IDENT", r'[A-Za-z_][A-Za-z0-9_]*'),
     ("LPAREN", r'\('),
     ("RPAREN", r'\)'),
     ("LBRACE", r'\{'),
     ("RBRACE", r'\}'),
+    ("LBRACKET", r'\['),
+    ("RBRACKET", r'\]'),
+    ("COLON", r':'),
     ("SEMI", r';'),
     ("COMMA", r','),
+    ("DOT", r'\.'),
+    ("ARROW", r'->'),
+    
+    # Generic types
+    ("LANGLE", r'<'),
+    ("RANGLE", r'>'),
+    
+    # Whitespace and comments
     ("WHITESPACE", r'\s+'),
     ("COMMENT", r'//.*'),
 ]
@@ -63,7 +114,7 @@ TOKEN_REGEX = [
 
 def tokenize(code: str) -> List[Tuple[str, str, int, int]]:
     """
-    Tokenize code with enhanced error handling
+    Tokenize code with enhanced type system support
     Returns list of (token_type, value, line, column) tuples
     """
     if not isinstance(code, str):
@@ -143,3 +194,56 @@ def tokenize_with_recovery(code: str) -> Tuple[List[Tuple[str, str, int, int]], 
             pass
 
     return tokens, errors
+
+
+def is_numeric_literal(token_type: str) -> bool:
+    """Check if token represents a numeric literal"""
+    return token_type in ("INT", "FLOAT")
+
+
+def is_type_keyword(token_type: str) -> bool:
+    """Check if token represents a type keyword"""
+    return token_type in ("INT_TYPE", "FLOAT_TYPE", "BOOL_TYPE", "STRING_TYPE", "VOID_TYPE")
+
+
+def is_literal(token_type: str) -> bool:
+    """Check if token represents a literal value"""
+    return token_type in ("INT", "FLOAT", "STRING", "BOOL_LITERAL")
+
+
+def is_operator(token_type: str) -> bool:
+    """Check if token represents an operator"""
+    return token_type in ("PLUS", "MINUS", "MULTIPLY", "DIVIDE", "MODULO", "POWER",
+                          "EQ", "NE", "LT", "LE", "GT", "GE", "AND", "OR", "NOT")
+
+
+def get_operator_precedence(token_type: str) -> int:
+    """Get operator precedence for parsing"""
+    precedence = {
+        "OR": 1,
+        "AND": 2,
+        "EQ": 3, "NE": 3,
+        "LT": 4, "LE": 4, "GT": 4, "GE": 4,
+        "PLUS": 5, "MINUS": 5,
+        "MULTIPLY": 6, "DIVIDE": 6, "MODULO": 6,
+        "POWER": 7,
+        "NOT": 8,  # Unary operators have highest precedence
+    }
+    return precedence.get(token_type, 0)
+
+
+def is_binary_operator(token_type: str) -> bool:
+    """Check if token represents a binary operator"""
+    return token_type in ("PLUS", "MINUS", "MULTIPLY", "DIVIDE", "MODULO", "POWER",
+                          "EQ", "NE", "LT", "LE", "GT", "GE", "AND", "OR")
+
+
+def is_unary_operator(token_type: str) -> bool:
+    """Check if token represents a unary operator"""
+    return token_type in ("MINUS", "NOT")
+
+
+def token_to_string(token: Tuple[str, str, int, int]) -> str:
+    """Convert token to readable string for error messages"""
+    tok_type, value, line, col = token
+    return f"{tok_type}('{value}') at line {line}, column {col}"
